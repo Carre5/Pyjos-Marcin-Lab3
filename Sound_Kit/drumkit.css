@@ -1,0 +1,28 @@
+#audioControls{
+    display:none;
+}
+
+#channelController{
+    margin-bottom: 2%;
+}
+
+#channelController button{
+    width:200px;
+    font-size:20px;
+}
+
+.channel{
+    width:100%;
+    background-color:red;
+    margin-bottom:1%;
+}
+
+.channel .controls{
+    width:170px;
+    background-color: blue;
+}
+
+.channel .controls button{
+    width:100%;
+    font-size: 25px;
+}

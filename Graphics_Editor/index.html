@@ -1,0 +1,254 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8"/>
+        <style>
+            body{
+                background-color: aliceblue;
+            }
+            #app{
+                margin: 0;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            #imagePreview{
+                width:800px;
+                height:400px;
+                padding:5px;
+                background-color: lightcoral;
+            }
+            #managment{
+                width:400px;
+                height:400px;
+                padding:5px;
+                background-color: lightblue;
+            }
+            #managment div{
+                padding-bottom:20px;
+            }
+
+            #btn-functions{
+                display:none;
+            }
+
+            .functions{
+                width:195px;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                background-color: red;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app">
+            <div id="managment">
+                <div>
+                    <input type="file" name="plik" id="file">
+                </div>
+                <div id="btn-functions">
+                    <button class="functions">Jasność</button>
+                    <button class="functions">Kontrast</button>
+                    <button class="functions">Nasycenie</button>
+                    <button class="functions">Czarno-Białe</button>
+                    <button class="functions">Sepia</button>
+                    <button class="functions">Filtruj kolor</button>
+                </div>
+                <div id="imageControls"></div>
+            </div>
+            <div id="imagePreview">
+                <canvas id="ps" width="800" height="400px"></canvas>
+            </div>
+        </div>
+
+        <script src="./js/App.js"></script>
+        <script>
+            let canvas;
+            let ctx;
+            let app;
+            let basicImageData;
+
+            document.querySelector("#file").addEventListener("change",()=>{
+                canvas = document.querySelector("#ps");
+                ctx = canvas.getContext("2d");
+
+                app = new App(ctx);
+
+                let img = new Image();
+                img.src = './image.jpg';
+                img.addEventListener('load',(e)=>{
+                    ctx.drawImage(e.target,0,0,canvas.width,canvas.height);
+                    basicImageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+
+                    document.querySelector("#btn-functions").style.display = "block";
+
+                    bindFunctions();
+                });
+            });
+
+            function bindFunctions(){
+                let functions = document.querySelectorAll(".functions");
+                
+                functions[0].addEventListener('click',(e)=>{
+                    let controls = document.querySelector("#imageControls");
+                    controls.innerHTML = "";
+
+                    focusOnFunction(e.target);
+
+                    let range = createRange();
+
+                    range.addEventListener('input',()=>{
+                        ctx.putImageData(basicImageData,0,0);
+
+                        let idata = ctx.getImageData(0,0,canvas.width,canvas.height);
+                        idata = app.brightness(idata);
+                        ctx.putImageData(idata,0,0);
+                    })
+
+                    controls.appendChild(range);
+                    controls.appendChild(createResetButton());
+                });
+
+                functions[1].addEventListener('click',(e)=>{
+                    let controls = document.querySelector("#imageControls");
+                    controls.innerHTML = "";
+
+                    focusOnFunction(e.target);
+
+                    let range = createRange();
+
+                    range.addEventListener('input',()=>{
+                        ctx.putImageData(basicImageData,0,0);
+
+                        let idata = ctx.getImageData(0,0,canvas.width,canvas.height);
+                        idata = app.contrast(idata);
+                        ctx.putImageData(idata,0,0);
+                    })
+
+                    controls.appendChild(range);
+                    controls.appendChild(createResetButton());
+                });
+
+                functions[2].addEventListener('click',(e)=>{
+                    let controls = document.querySelector("#imageControls");
+                    controls.innerHTML = "";
+
+                    focusOnFunction(e.target);
+
+                    let range = createRange();
+
+                    range.addEventListener('input',()=>{
+                        ctx.putImageData(basicImageData,0,0);
+
+                        let idata = ctx.getImageData(0,0,canvas.width,canvas.height);
+                        idata = app.saturation(idata);
+                        ctx.putImageData(idata,0,0);
+                    })
+
+                    controls.appendChild(range);
+                    controls.appendChild(createResetButton());
+                });
+                    
+                functions[3].addEventListener('click',(e)=>{
+                    ctx.putImageData(basicImageData,0,0);
+                    focusOnFunction(e.target);
+
+                    let idata = ctx.getImageData(0,0,canvas.width,canvas.height);
+                    idata = app.blackAndWhite(idata);
+                    ctx.putImageData(idata,0,0);
+
+                    let controls = document.querySelector("#imageControls");
+                    controls.innerHTML = "";
+                    controls.appendChild(createResetButton());
+                });
+
+                functions[4].addEventListener('click',(e)=>{
+                    ctx.putImageData(basicImageData,0,0);
+                    focusOnFunction(e.target);
+
+                    let idata = ctx.getImageData(0,0,canvas.width,canvas.height);
+                    idata = app.sepia(idata);
+                    ctx.putImageData(idata,0,0);
+
+                    let controls = document.querySelector("#imageControls");
+                    controls.innerHTML = "";
+                    controls.appendChild(createResetButton());
+                });
+
+                functions[5].addEventListener('click',(e)=>{
+                    ctx.putImageData(basicImageData,0,0);
+                    focusOnFunction(e.target);
+
+                    let controls = document.querySelector("#imageControls");
+                    controls.innerHTML = "";
+
+                    let red = document.createElement("button");
+                    red.textContent = "Czerwony";
+                    red.addEventListener('click',()=>{
+                        ctx.putImageData(basicImageData,0,0);
+                        let idata = ctx.getImageData(0,0,canvas.width,canvas.height);
+                        idata = app.filterColor("red",idata);
+                        ctx.putImageData(idata,0,0);
+                    });
+
+                    let green = document.createElement("button");
+                    green.textContent = "Zielony";
+                    green.addEventListener('click',()=>{
+                        ctx.putImageData(basicImageData,0,0);
+                        let idata = ctx.getImageData(0,0,canvas.width,canvas.height);
+                        idata = app.filterColor("green",idata);
+                        ctx.putImageData(idata,0,0);
+                    });
+
+                    let blue = document.createElement("button");
+                    blue.textContent = "Niebieski";
+                    blue.addEventListener('click',()=>{
+                        ctx.putImageData(basicImageData,0,0);
+                        let idata = ctx.getImageData(0,0,canvas.width,canvas.height);
+                        idata = app.filterColor("blue",idata);
+                        ctx.putImageData(idata,0,0);
+                    })
+                    
+                    controls.appendChild(red);
+                    controls.appendChild(green);
+                    controls.appendChild(blue);
+                    controls.appendChild(createResetButton());
+                })
+            }
+
+            function createRange(){
+                let range = document.createElement("input");
+                    range.type = "range";
+                    range.name ="zasieg";
+                    range.id = "factor";
+                    range.min = -50;
+                    range.max = 50;
+                    range.value = 0;
+
+                return range;
+            }
+
+            function focusOnFunction(opened){
+                let btns = document.querySelectorAll(".functions");
+                btns.forEach(el => {
+                    el.style.backgroundColor = "red";
+                });
+
+                opened.style.backgroundColor = "blue";
+            }
+
+            function createResetButton(){
+                let reset = document.createElement("button");
+                reset.textContent = "RESET";
+                reset.addEventListener('click',()=>{
+                    ctx.putImageData(basicImageData,0,0);
+                    if(document.querySelector("#factor"))
+                        document.querySelector("#factor").value = 0;
+                });
+                return reset;
+            }
+        </script>
+    </body>
+</html>
