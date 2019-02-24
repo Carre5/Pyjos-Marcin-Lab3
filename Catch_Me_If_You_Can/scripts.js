@@ -1,32 +1,38 @@
-/*
-map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 8,
-        center: uluru,
-        // keyboardShortcuts: false
-    });
-navigator.geolocation.getCurrentPosition(geoOk, geoFail)
-ws = new WebSocket(url)
-
-*/
 let uluru, map, marker
 let ws
 let players = {}
-let nick = '1'
+let nick = 'Anonymous'
+let avatar = "";
 
-function initMap() {
-    uluru = { lat: -25.363, lng: 131.044 };
+function init() {
+
+    nick = prompt("Wprowadź nick:");
+    avatar = prompt("Wprowadź adres url avataru:")
+
+    avatar == "" ? avatar = "http://0.gravatar.com/avatar/0205b4383f4d60a04050bf332a9fffed?s=50&d=http%3A%2F%2Fwww.bigredbarrel.com%2Fblog%2Fwp-content%2Fthemes%2Fdiverse%2Fimages%2FBRB.png&r=g" : avatar
+
+    initMap()
+}
+
+function initMap(position){
+
+    if(position == undefined || position == null){
+        position = { lat: -25.363, lng: 131.044 }
+    }
+
     map = new google.maps.Map(document.getElementById('map'), {
         zoom: 8,
-        center: uluru,
-        // keyboardShortcuts: false
+        center: position,
+        keyboardShortcuts: false
     });
     
     marker = new google.maps.Marker({
-        position: uluru,
+        position: position,
         map: map,
-        animation: google.maps.Animation.DROP
-        //   icon: 'https://static.goldenline.pl/user_photo/221/user_43997_34a2a8_huge.jpg'
+        animation: google.maps.Animation.DROP,
+        icon: avatar
     });
+    
     getLocalization()
     startWebSocket()
     addKeyboardEvents()
@@ -41,16 +47,16 @@ function poruszMarkerem(ev) {
 
     switch (ev.code) {
         case 'ArrowUp':
-            lat += 0.1
+            lat += .5
             break;
         case 'ArrowDown':
-            lat -= 0.1
+            lat -= .5
             break;
         case 'ArrowLeft':
-            lng -= 0.1
+            lng -= .5
             break;
         case 'ArrowRight':
-            lng += 0.1
+            lng += .5
             break;
     }
     let position = {
@@ -96,7 +102,6 @@ function onWSMessage(e) {
 
 function getLocalization() {
     navigator.geolocation.getCurrentPosition(geoOk, geoFail)
-
 }
 
 function geoOk(data) {
@@ -106,6 +111,7 @@ function geoOk(data) {
     }
     map.setCenter(coords)
     marker.setPosition(coords)
+    initMap(coords)
 }
 
 function geoFail(err) {
